@@ -21,22 +21,18 @@ class NOAAWeatherService(val geoCodingService: GeoLocationService,
 
     override fun dataFromExternalApi(address: USAddress, processData: (data: Any) -> WeatherDataInfo): WeatherDataInfo? {
         val location = geoCodingService.geoLocationFromAddress(address, null)
-        val url = location?.let { observationStationURL(it) }
-        val stationId = url?.let { observationStation(it) }
+        val url = location?.toObservationStationURL()
+        val stationId = url?.let { observationStationId(it) }
 
-
-        val restTemplate = restTemplateBuilder.build()
-
-            // We could map directly using JSON mapper
-        return restTemplate.getForObject("https://api.weather.gov/stations/$stationId/observations/latest",
-            String::class.java) // NOAAWeatherDataInfo
+        val weatherStationURL = "https://api.weather.gov/stations/$stationId/observations/latest"
+        return restTemplateBuilder.build().getForObject(weatherStationURL, String::class.java)
             ?.let { processData(it) }
 
     }
 
 
-    private fun observationStationURL(location: GeoAddressLocation) : String{
-        val pointsUrl = "https://api.weather.gov/points/${location.lat},${location.lng}"
+    private fun GeoAddressLocation.toObservationStationURL() : String{
+        val pointsUrl = "https://api.weather.gov/points/${this.lat},${this.lng}"
         val restTemplate = restTemplateBuilder
             .defaultHeader("accept", "application/geo+json")
             .build()
@@ -49,7 +45,7 @@ class NOAAWeatherService(val geoCodingService: GeoLocationService,
         return properties.getString("observationStations")
     }
 
-    fun observationStation(observationStationsURL :String): String{
+    private fun observationStationId(observationStationsURL :String): String{
 
         val restTemplate = restTemplateBuilder.build()
         val observations = restTemplate.getForObject(observationStationsURL, String::class.java)

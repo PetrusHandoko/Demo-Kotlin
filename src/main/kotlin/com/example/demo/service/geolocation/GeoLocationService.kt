@@ -4,35 +4,37 @@ import com.example.demo.service.geolocation.dto.GeoAddressLocation
 import com.example.demo.dto.USAddress
 import com.example.demo.dto.toStreetAddress
 import com.example.demo.service.geolocation.dto.GeoData
+import com.example.demo.service.geolocation.dto.toLocation
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.util.UriComponentsBuilder
 
 interface GeoLocationService {
-    fun geoLocationFromAddress(address: USAddress, onComplete: ((location:GeoData)->Unit)?): GeoAddressLocation?
+    fun geoLocationFromAddress(address: USAddress, onComplete: ((geoData:GeoData, location : GeoAddressLocation)->Unit)?): GeoAddressLocation?
 }
 
 @Service
-class USCensusLocationService : GeoLocationService {
+class USCensusLocationService (val restTemplateBuilder: RestTemplateBuilder): GeoLocationService {
+
 
     override fun geoLocationFromAddress(address: USAddress,
-                                        onComplete : ((location: GeoData) -> Unit)? ) : GeoAddressLocation? {
-        val geoData = WebClient.builder()
-            .baseUrl("https://geocoding.geo.census.gov/geocoder/locations/address")
+                                        onComplete : ((geoData: GeoData, location : GeoAddressLocation) -> Unit)? ) : GeoAddressLocation? {
+        val restTemplate = restTemplateBuilder
+
+            .defaultHeader("accept", "application/geo+json")
             .build()
-            .get()
-            .uri { uriBuilder ->
-                uriBuilder
+
+        val geLocationApiUrl = UriComponentsBuilder.fromUriString("https://geocoding.geo.census.gov/geocoder/locations/address")
                     .queryParam("benchmark", "Public_AR_Current")
                     .queryParam("format", "json")
                     .queryParam("street", address.toStreetAddress())
                     .queryParam("city", address.city)
                     .queryParam("state", address.state)
                     .queryParam("zip", address.zip)
-                    .build()
-            }
-            .retrieve()
-            .bodyToMono(GeoData::class.java)//GeoData::class.java) // Convert response to GeoData object
-            .block() // Blocking for simplicity
+            .toUriString()
+
+        val geoData = restTemplate
+            .getForObject(geLocationApiUrl, GeoData::class.java)
 
         if (geoData != null) {
             if (geoData.result.addressMatches.isNotEmpty()) {
@@ -42,8 +44,9 @@ class USCensusLocationService : GeoLocationService {
                 )
 
                 if (onComplete != null) {
-                    onComplete(geoData)
+                    onComplete(geoData, location)
                 }
+                println("geoLocationFromAddress (${address.toStreetAddress()}): ${location.toLocation()}")
                 return location
             }
         }
