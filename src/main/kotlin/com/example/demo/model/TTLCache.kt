@@ -1,10 +1,7 @@
 package com.example.demo.model
 
-import com.example.demo.config.AppConfig
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
-
 import kotlin.concurrent.timer
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
