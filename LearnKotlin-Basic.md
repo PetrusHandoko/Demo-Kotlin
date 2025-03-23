@@ -46,7 +46,6 @@ Example:
         else -> println(" Type: " + input.javaClass)
     }
 
-
 ### Function
 
 Declaring function as follows:
