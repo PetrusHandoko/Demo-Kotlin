@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>demo</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>demo</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
@@ -139,8 +139,8 @@
 	</dependencies>
 
 	<build>
-		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-		<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+		<sourceDirectory>${project.basedir}/app/src/main/kotlin</sourceDirectory>
+		<testSourceDirectory>${project.basedir}/app/src/test/kotlin</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>io.github.deweyjose</groupId>
@@ -154,7 +154,7 @@
 						</goals>
 						<configuration>
 							<schemaPaths>
-								<param>src/main/resources/schema</param>
+								<param>app/src/main/resources/schema</param>
 							</schemaPaths>
 							<packageName>com.example.demo.codegen</packageName>
 							<addGeneratedAnnotation>true</addGeneratedAnnotation>
@@ -206,7 +206,7 @@
 						</goals>
 						<configuration>
 							<sourceDirs>
-								<source>src/main/kotlin</source>
+								<source>app/src/main/kotlin</source>
 								<source>target/generated-sources</source>
 							</sourceDirs>
 						</configuration>
@@ -219,7 +219,7 @@
 						</goals>
 						<configuration>
 							<sourceDirs>
-								<source>src/test/kotlin</source>
+								<source>app/src/test/kotlin</source>
 								<source>target/generated-test-sources/test-annotations</source>
 							</sourceDirs>
 						</configuration>
